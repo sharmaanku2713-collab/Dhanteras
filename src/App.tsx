@@ -8,7 +8,17 @@ import { ShareModal } from './components/common/ShareModal';
 import { Footer } from './components/common/Footer';
 import { FestiveParticles } from './components/common/FestiveParticles';
 import { getPageFromUrl, getSenderFromUrl, generateGreetingUrl } from './utils/url';
+import { initGA, trackPageView, trackGreetingCreated, trackShareButtonClicked } from './utils/analytics';
 import { FESTIVAL_DATA } from './config/brand';
+
+// Initialize GA once on module load — safe even if ID is missing (no-op)
+initGA();
+
+function buildPageTitle(route: 'dhanteras' | 'diwali' | 'home'): string {
+  if (route === 'dhanteras') return 'ASAI LABS — Shubh Dhanteras Greeting';
+  if (route === 'diwali')    return 'ASAI LABS — Shubh Diwali Greeting';
+  return 'ASAI LABS — Festive Greeting Creator';
+}
 
 export const App: React.FC = () => {
   // Routes: 'dhanteras' | 'diwali' | 'home'
@@ -31,7 +41,7 @@ export const App: React.FC = () => {
     if (cleanSender) {
       setSenderName(cleanSender);
       setHasSenderFromUrl(true);
-      setIsCinematicActive(true); // Launch cinematic reveal on direct personalized link
+      setIsCinematicActive(true);
       const targetFestival = route === 'home' ? 'diwali' : route;
       setShareUrl(generateGreetingUrl(targetFestival, cleanSender));
     } else {
@@ -41,6 +51,13 @@ export const App: React.FC = () => {
         setShareUrl(generateGreetingUrl(route, FESTIVAL_DATA[route].defaultSender));
       }
     }
+
+    // Track SPA page view
+    trackPageView(
+      buildPageTitle(route),
+      window.location.pathname + window.location.search,
+      route
+    );
   }, []);
 
   useEffect(() => {
@@ -58,7 +75,7 @@ export const App: React.FC = () => {
   const navigateTo = (route: 'dhanteras' | 'diwali' | 'home', sender?: string) => {
     setCurrentRoute(route);
     const sName = sender !== undefined ? sender : senderName;
-    
+
     let newUrl = `${window.location.origin}/`;
     if (route !== 'home') {
       const params = new URLSearchParams();
@@ -70,6 +87,13 @@ export const App: React.FC = () => {
     }
 
     window.history.pushState({}, '', newUrl);
+
+    // Track the navigation as a page view
+    trackPageView(
+      buildPageTitle(route),
+      newUrl.replace(window.location.origin, ''),
+      route
+    );
 
     if (sName && route !== 'home') {
       setShareUrl(newUrl);
@@ -88,6 +112,12 @@ export const App: React.FC = () => {
     setIsShareModalOpen(true);
 
     window.history.pushState({}, '', url);
+
+    // Track custom event
+    trackGreetingCreated(festival, name);
+
+    // Track page view to festival page
+    trackPageView(buildPageTitle(festival), url.replace(window.location.origin, ''), festival);
   };
 
   const handleReplayAnimation = () => {
@@ -109,7 +139,10 @@ export const App: React.FC = () => {
       <Navbar
         currentRoute={currentRoute}
         onNavigate={(route) => navigateTo(route)}
-        onOpenShareModal={() => setIsShareModalOpen(true)}
+        onOpenShareModal={() => {
+          trackShareButtonClicked(activeFestivalType, 'navbar');
+          setIsShareModalOpen(true);
+        }}
       />
 
       {/* Cinematic Cloud Reveal Overlay */}
@@ -135,7 +168,10 @@ export const App: React.FC = () => {
           /* Case 2: Dhanteras Dedicated Experience */
           <DhanterasPage
             senderName={senderName}
-            onOpenShareModal={() => setIsShareModalOpen(true)}
+            onOpenShareModal={() => {
+              trackShareButtonClicked('dhanteras', 'greeting_card');
+              setIsShareModalOpen(true);
+            }}
             onCreateNewGreeting={() => {
               setHasSenderFromUrl(false);
               navigateTo('home', '');
@@ -146,7 +182,10 @@ export const App: React.FC = () => {
           /* Case 3: Diwali Dedicated Experience */
           <DiwaliPage
             senderName={senderName}
-            onOpenShareModal={() => setIsShareModalOpen(true)}
+            onOpenShareModal={() => {
+              trackShareButtonClicked('diwali', 'greeting_card');
+              setIsShareModalOpen(true);
+            }}
             onCreateNewGreeting={() => {
               setHasSenderFromUrl(false);
               navigateTo('home', '');

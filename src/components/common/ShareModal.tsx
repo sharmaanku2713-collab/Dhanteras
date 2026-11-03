@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Copy, Check, MessageCircle, Share2, Sparkles, ExternalLink } from 'lucide-react';
 import { generateWhatsAppShareUrl, copyToClipboard, triggerWebShare } from '../../utils/url';
+import { trackWhatsAppShareClicked, trackCopyLinkClicked } from '../../utils/analytics';
 import { FESTIVAL_DATA } from '../../config/brand';
 
 interface ShareModalProps {
@@ -32,6 +33,8 @@ export const ShareModal: React.FC<ShareModalProps> = ({
     if (success) {
       setCopied(true);
       setTimeout(() => setCopied(false), 2500);
+      // Track copy_link_clicked event
+      trackCopyLinkClicked(festivalType);
     }
   };
 
@@ -41,6 +44,11 @@ export const ShareModal: React.FC<ShareModalProps> = ({
       greetingMessage,
       shareUrl
     );
+  };
+
+  const handleWhatsAppClick = () => {
+    // Track whatsapp_share_clicked event
+    trackWhatsAppShareClicked(festivalType);
   };
 
   const hasNativeShare = typeof navigator !== 'undefined' && !!navigator.share;
@@ -126,6 +134,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({
               href={whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={handleWhatsAppClick}
               className="w-full flex items-center justify-center gap-2.5 py-3.5 px-4 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-[#25D366] to-[#128C7E] hover:opacity-95 shadow-lg shadow-emerald-950/40 hover:scale-[1.01] active:scale-[0.99] transition-all"
             >
               <MessageCircle className="w-5 h-5 fill-current" />

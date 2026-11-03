@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Volume2, VolumeX, Sparkles, Flame, Share2 } from 'lucide-react';
 import { BRAND } from '../../config/brand';
 import { festiveAudio } from '../../utils/audio';
+import { trackMusicPlayClicked } from '../../utils/analytics';
 
 interface NavbarProps {
   currentRoute: 'dhanteras' | 'diwali' | 'home';
@@ -25,9 +26,11 @@ export const Navbar: React.FC<NavbarProps> = ({ currentRoute, onNavigate, onOpen
     if (isPlayingMusic) {
       festiveAudio.stop();
       setIsPlayingMusic(false);
+      trackMusicPlayClicked(false, currentRoute === 'home' ? undefined : currentRoute);
     } else {
       const started = await festiveAudio.start();
       setIsPlayingMusic(started);
+      if (started) trackMusicPlayClicked(true, currentRoute === 'home' ? undefined : currentRoute);
     }
   };
 
