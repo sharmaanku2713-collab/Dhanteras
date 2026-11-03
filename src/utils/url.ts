@@ -1,6 +1,6 @@
 /**
- * URL and Sender Name Utilities
- * Handles sanitization, encoding, and sharing link generation
+ * URL, Route, and Sender Name Utilities
+ * Handles sanitization, encoding, query-based routing, and sharing link generation
  */
 
 export function sanitizeSenderName(rawName: string | null | undefined): string {
@@ -24,7 +24,7 @@ export function getSenderFromUrl(): string {
     return sanitizeSenderName(fromQuery);
   }
 
-  // Also support hash parameters (e.g. #/diwali?from=Aniket) for static hosting
+  // Also support hash parameters (e.g. #/diwali?from=Aniket or #/?page=diwali&from=Aniket)
   if (window.location.hash.includes("?")) {
     const hashQuery = window.location.hash.split("?")[1];
     const hashParams = new URLSearchParams(hashQuery);
@@ -37,11 +37,50 @@ export function getSenderFromUrl(): string {
   return "";
 }
 
-export function generateGreetingUrl(route: string, senderName: string): string {
+export function getPageFromUrl(): 'dhanteras' | 'diwali' | 'home' {
+  if (typeof window === "undefined") return "home";
+
+  const searchParams = new URLSearchParams(window.location.search);
+  let hashParams = new URLSearchParams();
+  if (window.location.hash.includes("?")) {
+    hashParams = new URLSearchParams(window.location.hash.split("?")[1]);
+  }
+
+  // 1. Check primary query parameter ?page=... or ?festival=... or ?p=...
+  const pageParam = (
+    searchParams.get("page") ||
+    searchParams.get("festival") ||
+    searchParams.get("p") ||
+    hashParams.get("page") ||
+    hashParams.get("festival")
+  )?.toLowerCase();
+
+  if (pageParam === "dhanteras") return "dhanteras";
+  if (pageParam === "diwali") return "diwali";
+
+  // 2. Also check pathname (e.g. /dhanteras, /diwali) or hash path (#/dhanteras, #/diwali)
+  const path = window.location.pathname.toLowerCase();
+  const hash = window.location.hash.toLowerCase();
+
+  if (path.includes("dhanteras") || hash.includes("dhanteras")) return "dhanteras";
+  if (path.includes("diwali") || hash.includes("diwali")) return "diwali";
+
+  return "home";
+}
+
+/**
+ * Generate bulletproof greeting URL using homepage query parameters.
+ * e.g. https://domain.com/?page=dhanteras&from=Aniket
+ * This guarantees 100% compatibility with static hosting (such as Hostinger)
+ * preventing any server-side 404 errors when recipients open the link.
+ */
+export function generateGreetingUrl(routeOrFestival: string, senderName: string): string {
   const origin = typeof window !== "undefined" ? window.location.origin : "";
-  const cleanRoute = route.startsWith("/") ? route : `/${route}`;
+  const festival = routeOrFestival.replace(/^\/+/, "").split("?")[0].toLowerCase();
+  const cleanFestival = festival === "dhanteras" ? "dhanteras" : "diwali";
   const encodedName = encodeURIComponent(senderName.trim());
-  return `${origin}${cleanRoute}?from=${encodedName}`;
+  
+  return `${origin}/?page=${cleanFestival}&from=${encodedName}`;
 }
 
 export function generateWhatsAppShareUrl(message: string): string {

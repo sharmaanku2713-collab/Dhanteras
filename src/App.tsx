@@ -7,7 +7,7 @@ import { DiwaliPage } from './components/diwali/DiwaliPage';
 import { ShareModal } from './components/common/ShareModal';
 import { Footer } from './components/common/Footer';
 import { FestiveParticles } from './components/common/FestiveParticles';
-import { sanitizeSenderName, generateGreetingUrl } from './utils/url';
+import { getPageFromUrl, getSenderFromUrl, generateGreetingUrl } from './utils/url';
 import { FESTIVAL_DATA } from './config/brand';
 
 export const App: React.FC = () => {
@@ -23,40 +23,23 @@ export const App: React.FC = () => {
   const parseCurrentUrl = useCallback(() => {
     if (typeof window === 'undefined') return;
 
-    const path = window.location.pathname.toLowerCase();
-    const hash = window.location.hash.toLowerCase();
-    const search = window.location.search;
-
-    let route: 'dhanteras' | 'diwali' | 'home' = 'home';
-    if (path.includes('dhanteras') || hash.includes('dhanteras')) {
-      route = 'dhanteras';
-    } else if (path.includes('diwali') || hash.includes('diwali')) {
-      route = 'diwali';
-    }
-
-    // Extract 'from' parameter from search or hash query
-    const searchParams = new URLSearchParams(search);
-    let fromParam = searchParams.get('from');
-
-    if (!fromParam && hash.includes('?')) {
-      const hashParams = new URLSearchParams(hash.split('?')[1]);
-      fromParam = hashParams.get('from');
-    }
-
-    const cleanSender = sanitizeSenderName(fromParam);
+    const route = getPageFromUrl();
+    const cleanSender = getSenderFromUrl();
 
     setCurrentRoute(route);
+
     if (cleanSender) {
       setSenderName(cleanSender);
       setHasSenderFromUrl(true);
       setIsCinematicActive(true); // Launch cinematic reveal on direct personalized link
-      const targetRoute = route === 'home' ? 'diwali' : route;
-      setShareUrl(generateGreetingUrl(targetRoute, cleanSender));
+      const targetFestival = route === 'home' ? 'diwali' : route;
+      setShareUrl(generateGreetingUrl(targetFestival, cleanSender));
     } else {
       setHasSenderFromUrl(false);
-      // If someone visits /dhanteras or /diwali directly without a name:
-      // Show the festive page with ASAI LABS as default or let them create one
       setSenderName('');
+      if (route !== 'home') {
+        setShareUrl(generateGreetingUrl(route, FESTIVAL_DATA[route].defaultSender));
+      }
     }
   }, []);
 
@@ -71,18 +54,27 @@ export const App: React.FC = () => {
     return () => window.removeEventListener('popstate', handlePopState);
   }, [parseCurrentUrl]);
 
-  // Navigate handler that updates URL
+  // Navigate handler that updates URL safely without 404s
   const navigateTo = (route: 'dhanteras' | 'diwali' | 'home', sender?: string) => {
     setCurrentRoute(route);
     const sName = sender !== undefined ? sender : senderName;
-    const path = route === 'home' ? '/' : `/${route}`;
-    const query = sName ? `?from=${encodeURIComponent(sName)}` : '';
-    const newUrl = `${window.location.origin}${path}${query}`;
+    
+    let newUrl = `${window.location.origin}/`;
+    if (route !== 'home') {
+      const params = new URLSearchParams();
+      params.set('page', route);
+      if (sName) {
+        params.set('from', sName);
+      }
+      newUrl = `${window.location.origin}/?${params.toString()}`;
+    }
 
     window.history.pushState({}, '', newUrl);
 
-    if (sName) {
+    if (sName && route !== 'home') {
       setShareUrl(newUrl);
+    } else if (route !== 'home') {
+      setShareUrl(generateGreetingUrl(route, FESTIVAL_DATA[route].defaultSender));
     }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -95,9 +87,7 @@ export const App: React.FC = () => {
     setHasSenderFromUrl(true);
     setIsShareModalOpen(true);
 
-    const path = `/${festival}`;
-    const newUrl = `${window.location.origin}${path}?from=${encodeURIComponent(name)}`;
-    window.history.pushState({}, '', newUrl);
+    window.history.pushState({}, '', url);
   };
 
   const handleReplayAnimation = () => {
@@ -133,7 +123,7 @@ export const App: React.FC = () => {
 
       {/* Main Content Area */}
       <main className="relative z-20">
-        {/* Case 1: Creator Screen (If route is home, or user opened without sender name and hasn't generated one yet) */}
+        {/* Case 1: Creator Screen (If route is home, or user opened root without sender name) */}
         {currentRoute === 'home' && !hasSenderFromUrl ? (
           <div className="pt-24 pb-16">
             <GreetingCreator
