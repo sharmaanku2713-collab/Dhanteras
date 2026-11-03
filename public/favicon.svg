@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF8A00" />
+      <stop offset="100%" stop-color="#FF6A00" />
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FFD166" stop-opacity="0.8" />
+      <stop offset="100%" stop-color="#FF6A00" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+  <circle cx="50" cy="50" r="48" fill="#07090D" stroke="#FF8A00" stroke-width="2" />
+  <circle cx="50" cy="45" r="28" fill="url(#glow)" />
+  <!-- ASAI stylized 'A' mark -->
+  <polygon points="50,15 82,80 62,80 50,55 38,80 18,80" fill="url(#grad)" />
+  <polygon points="50,34 60,60 40,60" fill="#07090D" />
+  <!-- Flame top -->
+  <path d="M50 12 C 45 6, 47 2, 50 0 C 53 2, 55 6, 50 12 Z" fill="#FFD166" />
+</svg>
