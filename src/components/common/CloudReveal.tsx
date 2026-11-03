@@ -147,7 +147,7 @@ export const CloudReveal: React.FC<CloudRevealProps> = ({
         >
           A sacred greeting sent from{' '}
           <span className="font-bold text-[#FFD166] underline decoration-[#FF8A00]">
-            {senderName || 'ASAI LABS'}
+            {senderName || 'A Friend'}
           </span>
         </motion.p>
       </motion.div>

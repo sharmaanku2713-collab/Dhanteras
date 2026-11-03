@@ -217,24 +217,12 @@ export const GreetingCreator: React.FC<GreetingCreatorProps> = ({
 
             {/* Sender signature showcase */}
             <div className="mt-4 pt-3 border-t border-white/10">
-              <p className="text-[10px] text-gray-400 uppercase tracking-wider">
-                {festival.signaturePrefix}
+              <p className="text-[10px] text-[#FF8A00] font-semibold uppercase tracking-wider">
+                WITH WARM WISHES FROM
               </p>
-              <p className="text-base font-bold text-[#FFD166] mt-0.5">
-                {name.trim() || 'Your Name Here'}
+              <p className="text-xl md:text-2xl font-black text-[#FFD166] mt-1 font-cinzel uppercase tracking-wide">
+                {name.trim() || 'YOUR NAME'}
               </p>
-            </div>
-
-            {/* Aniket Mascot Mini-Badge */}
-            <div className="mt-4 flex items-center justify-center gap-2 bg-white/5 py-1.5 px-3 rounded-full border border-white/10">
-              <img
-                src="/assets/character/aniket-happy.png"
-                alt="Aniket Mascot"
-                className="w-6 h-6 rounded-full object-cover border border-[#FF8A00]"
-              />
-              <span className="text-[10px] text-gray-300">
-                Crafted with <span className="text-[#FF8A00] font-bold">ASAI LABS</span>
-              </span>
             </div>
           </div>
         </motion.div>

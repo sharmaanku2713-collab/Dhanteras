@@ -183,37 +183,21 @@ export const DhanterasPage: React.FC<DhanterasPageProps> = ({
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.9, delay: 0.5 }}
-          className="mt-8 relative rounded-3xl p-6 md:p-8 bg-gradient-to-b from-[#1F170B]/90 via-[#151008]/80 to-[#0B0906]/95 border-2 border-[#FFD166]/50 shadow-2xl shadow-orange-950/50 max-w-lg w-full"
+          className="mt-8 relative rounded-3xl py-7 px-8 md:py-9 md:px-12 bg-gradient-to-b from-[#1F170B]/90 via-[#151008]/80 to-[#0B0906]/95 border-2 border-[#FFD166]/50 shadow-2xl shadow-orange-950/50 max-w-lg w-full text-center"
         >
           {/* Subtle golden corner accents */}
-          <div className="absolute top-2 left-2 w-4 h-4 border-t-2 border-l-2 border-[#FFD166]" />
-          <div className="absolute top-2 right-2 w-4 h-4 border-t-2 border-r-2 border-[#FFD166]" />
-          <div className="absolute bottom-2 left-2 w-4 h-4 border-b-2 border-l-2 border-[#FFD166]" />
-          <div className="absolute bottom-2 right-2 w-4 h-4 border-b-2 border-r-2 border-[#FFD166]" />
+          <div className="absolute top-2.5 left-2.5 w-4 h-4 border-t-2 border-l-2 border-[#FFD166]" />
+          <div className="absolute top-2.5 right-2.5 w-4 h-4 border-t-2 border-r-2 border-[#FFD166]" />
+          <div className="absolute bottom-2.5 left-2.5 w-4 h-4 border-b-2 border-l-2 border-[#FFD166]" />
+          <div className="absolute bottom-2.5 right-2.5 w-4 h-4 border-b-2 border-r-2 border-[#FFD166]" />
 
-          <p className="text-xs uppercase tracking-widest text-[#FF8A00] font-semibold">
-            {data.signaturePrefix}
+          <p className="text-xs md:text-sm uppercase tracking-widest text-[#FF8A00] font-semibold">
+            WITH WARM WISHES FROM
           </p>
 
-          <h3 className="text-2xl md:text-4xl font-black text-[#FFD166] mt-1 font-cinzel tracking-wider drop-shadow-md">
-            {senderName || data.defaultSender}
+          <h3 className="text-3xl md:text-5xl font-black text-[#FFD166] mt-2 font-cinzel tracking-wider drop-shadow-md uppercase break-words">
+            {senderName || 'A FRIEND'}
           </h3>
-
-          <div className="mt-4 pt-4 border-t border-white/10 flex items-center justify-center gap-3">
-            {/* Mascot Avatar from reference sheet */}
-            <div className="relative">
-              <img
-                src="/assets/character/aniket-happy.png"
-                alt="Aniket mascot"
-                className="w-10 h-10 rounded-full object-cover border-2 border-[#FF8A00] shadow-md shadow-orange-500/30"
-              />
-              <span className="absolute -bottom-1 -right-1 text-xs">✨</span>
-            </div>
-            <div className="text-left">
-              <p className="text-xs font-bold text-white">Aniket & ASAI LABS</p>
-              <p className="text-[10px] text-gray-400">Wishing you health & abundance</p>
-            </div>
-          </div>
         </motion.div>
 
         {/* Interactive Action CTAs */}
